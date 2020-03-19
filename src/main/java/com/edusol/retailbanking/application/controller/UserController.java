@@ -13,12 +13,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @RestController
 @RequestMapping("/users")
 public class UserController {
 
     @Autowired
     UserService userService;
+
+
     @GetMapping(value = "/getUser/{id}",
             produces = {MediaType.APPLICATION_XML_VALUE,MediaType.APPLICATION_JSON_VALUE})
 
@@ -30,6 +35,29 @@ public class UserController {
 
         return returnValue  ;
     }
+
+
+
+    @GetMapping(value = "/getLimitedUser",
+            produces = {MediaType.APPLICATION_XML_VALUE,MediaType.APPLICATION_JSON_VALUE})
+
+    public List<UserRest> getLimitedUser(@RequestParam(value = "page",defaultValue = "0") int page,
+                                        @RequestParam(value = "limit",defaultValue = "25") int limit)
+    {
+       List<UserRest>  returnValue=new ArrayList<>();
+      List<UserDto> users=userService.getLimitedUser(page,limit);
+      for (UserDto userDto:users) {
+          UserRest userModel=new UserRest();
+          BeanUtils.copyProperties(userDto, userModel);
+          returnValue.add(userModel);
+      }
+
+        return returnValue  ;
+    }
+
+
+
+
 
     @PostMapping(value = "/createUser",
             produces = {MediaType.APPLICATION_XML_VALUE,MediaType.APPLICATION_JSON_VALUE},

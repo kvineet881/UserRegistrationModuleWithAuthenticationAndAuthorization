@@ -8,6 +8,9 @@ import com.edusol.retailbanking.application.responce.ErrorMessages;
 import com.edusol.retailbanking.application.shared.Utils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -15,6 +18,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class UserServiceImp implements UserService {
@@ -97,6 +101,21 @@ public class UserServiceImp implements UserService {
             throw new UserServiceException(ErrorMessages.NO_RECORD_FOUND.getErrorMessage());
         }
         userRepository.delete(userEntity);
+    }
+
+    @Override
+    public List<UserDto> getLimitedUser(int page, int limit) {
+        List<UserDto> returnValue = new ArrayList<>();
+        Pageable pageRequest = PageRequest.of(page, limit);
+        Page<UserEntity> userPage = userRepository.findAll(pageRequest);
+        List<UserEntity> users = userPage.getContent();
+        for (UserEntity userEntity : users) {
+            UserDto userDto = new UserDto();
+            BeanUtils.copyProperties(userEntity, userDto);
+            returnValue.add(userDto);
+
+        }
+        return returnValue;
     }
 
     @Override
